@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LinkedUp</title>
-
+   
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -13,11 +13,21 @@
   <link rel="stylesheet" href="index.css"> <!-- page-specific overrides -->
   <!-- SheetJS for XLSX import/export -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
+  <script>
+    (function(){
+      try{
+        if(localStorage.getItem('LU_CURRENT_USER')){
+          // redirect logged-in users straight to logged-home
+          window.location.replace('home-logged.html');
+        }
+      }catch(e){}
+    })();
+  </script>
+  
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
-  <!-- NAVBAR (full-width, fixed) -->
+  <!-- NAVBAR -->
   <header id="siteHeader" class="w-full bg-white shadow-sm">
     <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -53,8 +63,8 @@
     </div>
   </header>
 
-  <!-- HERO (LinkedIn gradient) -->
-  <main class="pt-28"> <!-- pt to offset fixed header -->
+  <!-- HERO -->
+  <main class="pt-28">
     <section class="hero pt-24 pb-16 relative text-white linkedin-gradient">
       <div class="overlay" aria-hidden="true"></div>
       <div class="max-w-6xl mx-auto px-6 lg:px-8 relative">
@@ -112,7 +122,7 @@
       </div>
     </section>
 
-    <!-- ABOUT ... (unchanged) -->
+    <!-- ABOUT -->
     <section id="about" class="py-16 px-6 max-w-5xl mx-auto text-center fade-reveal">
       <h3 class="text-3xl font-bold mb-6 text-[#0A66C2]">What is LinkedUp?</h3>
       <p class="text-gray-700 leading-relaxed mb-8">
@@ -135,7 +145,7 @@
       </div>
     </section>
 
-    <!-- STATS (unchanged) -->
+    <!-- STATS -->
     <section id="stats" class="bg-white py-16 px-6">
       <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
@@ -157,14 +167,14 @@
       </div>
     </section>
 
-    <!-- JOIN (also LinkedIn gradient) -->
+    <!-- JOIN -->
     <section id="join" class="linkedin-gradient text-white py-20 text-center">
       <h3 class="text-3xl font-bold mb-4">Become an Up’s at LinkedUp ✨</h3>
       <p class="max-w-2xl mx-auto mb-8">Be a part of an active, driven, and skilled network. Join and unlock exclusive opportunities.</p>
       <button id="joinNowBtnDuplicate" type="button" class="px-6 py-3 bg-white text-[#0A66C2] font-semibold rounded-lg shadow btn-smooth">Join Now</button>
     </section>
 
-    <!-- REGISTER & FOOTER (unchanged) -->
+    <!-- REGISTER -->
     <section id="register" class="py-16 px-6 max-w-3xl mx-auto text-center">
       <h3 class="text-2xl font-bold text-[#0A66C2] mb-6">Why You Need to Register on LinkedUp?</h3>
       <ul class="text-gray-700 leading-relaxed space-y-4 text-left list-disc list-inside">
@@ -214,8 +224,9 @@
   </div>
 
   <!-- Scripts -->
+  <script src="common.js"></script>
   <script type="module" src="hackathons.js"></script>
   <script src="index.js"></script>
-
+  
 </body>
 </html>
