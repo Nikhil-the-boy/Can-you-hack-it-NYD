@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LinkedUp — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(180deg,#f8fafc, #ffffff 60%); }
+    .card { background: #fff; border: 1px solid #eef6ff; border-radius: 12px; padding: 16px; transition: transform .15s ease, box-shadow .15s ease; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(10,102,194,0.06); }
+    .metric { font-size: 20px; font-weight: 700; color: #0A66C2; }
+    .muted { color:#6b7280; }
+    .avatar { width:56px;height:56px;border-radius:12px;object-fit:cover;border:2px solid #eef6ff; }
+    .pill { background:#eef6fb;color:#0A66C2;padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px; }
+  </style>
+</head>
+<body class="font-sans text-gray-900">
+  <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="image.png" alt="logo" class="w-10 h-10 rounded-md object-cover" />
+        <div class="text-lg font-bold text-[#0A66C2]">LinkedUp</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="hackathons.html" class="text-sm text-gray-700 hover:text-[#0A66C2]">Events</a>
+        <a href="profile.html" class="text-sm text-gray-700 hover:text-[#0A66C2]">Profile</a>
+        <button id="logoutBtn" class="px-3 py-2 rounded-lg border">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 pt-28 pb-20">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+      <!-- profile -->
+      <div class="lg:col-span-1 card">
+        <div class="flex items-center gap-3">
+          <img id="dashAvatar" class="avatar" src="image.png" alt="avatar" />
+          <div>
+            <div id="dashName" class="text-lg font-bold"></div>
+            <div id="dashEmail" class="text-sm muted"></div>
+            <div class="mt-2">
+              <span id="dashRole" class="pill">Role</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h4 class="text-sm font-semibold">About you</h4>
+          <p id="dashBio" class="text-sm muted mt-2"></p>
+        </div>
+
+        <div class="mt-4 space-y-2">
+          <button id="editProfileBtn" class="w-full px-4 py-2 bg-[#0A66C2] text-white rounded-lg">Edit Profile</button>
+          <button id="exportProfileBtn" class="w-full px-4 py-2 border rounded-lg">Export Profile</button>
+        </div>
+      </div>
+
+      <!-- center -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm muted">Welcome back,</div>
+              <div id="welcomeName" class="text-2xl font-extrabold">User</div>
+              <div class="text-sm muted mt-1">Here’s what’s happening on LinkedUp</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-center">
+                <div id="statEvents" class="metric">0</div>
+                <div class="muted text-sm">Events</div>
+              </div>
+              <div class="text-center">
+                <div id="statSaved" class="metric">0</div>
+                <div class="muted text-sm">Saved</div>
+              </div>
+              <div class="text-center">
+                <div id="statGroups" class="metric">0</div>
+                <div class="muted text-sm">Your groups</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 class="font-semibold">Events by category</h4>
+          <div id="categoryStats" class="mt-4 grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold">Your groups</h4>
+            <div><button id="openAllGroups" class="btn-ghost">Manage groups</button></div>
+          </div>
+          <div id="userGroups" class="mt-3 space-y-3 text-sm muted">No groups yet.</div>
+        </div>
+      </div>
+
+      <!-- right -->
+      <div class="card">
+        <h4 class="font-semibold">Quick actions</h4>
+        <div class="mt-3 space-y-3">
+          <button id="goEvents" class="w-full bg-[#0A66C2] text-white px-4 py-2 rounded-lg">Browse Events</button>
+          <button id="createEvent" class="w-full border px-4 py-2 rounded-lg">Create New Event (Local)</button>
+          <button id="viewProfile" class="w-full border px-4 py-2 rounded-lg">View Full Profile</button>
+        </div>
+
+        <div class="mt-6">
+          <h5 class="font-semibold">Recent activity</h5>
+          <div id="recentActivity" class="mt-3 text-sm muted">No recent activity.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <script defer src="common.js"></script>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>
