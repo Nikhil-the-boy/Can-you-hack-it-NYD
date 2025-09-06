@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="home-logged.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LinkedUp — Home</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* local tweaks to keep consistent look */
+    body { background: linear-gradient(180deg,#f8fafc,#ffffff 60%); }
+    .card { background:#fff; border:1px solid #eef6ff; border-radius:12px; padding:16px; transition:transform .14s ease, box-shadow .14s ease; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(10,102,194,0.06); }
+    .avatar-sm{ width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid #eef6ff; }
+    .chip{ display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f4f6;margin-right:6px;margin-bottom:6px; font-size:13px; }
+    .muted{ color:#6b7280; }
+    .metric{ font-size:20px;font-weight:700;color:#0A66C2; }
+    .btn-primary{ background:linear-gradient(90deg,#0A66C2,#2b9cff); color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+    .btn-ghost{ background:transparent;border:1px solid #dbeafe;padding:8px 12px;border-radius:8px;color:#0A66C2; cursor:pointer; }
+    #profileBadge{ cursor:pointer; }
+    .small{ font-size:13px; }
+    .fadeIn{ animation: fadeIn .35s ease both; }
+    @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px);} to{ opacity:1; transform:none;} }
+  </style>
+</head>
+<body class="font-sans text-gray-900">
+
+  <!-- NAVBAR (same style as index.html) -->
+  <header id="siteHeader" class="w-full fixed top-0 left-0 right-0 bg-white shadow z-50">
+    <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="image.png" alt="LinkedUp Logo" class="w-10 h-10 rounded-md object-cover" />
+        <div>
+          <div class="text-lg font-bold text-[#0A66C2] leading-none">LinkedUp</div>
+          <div class="text-xs muted -mt-0.5">Connect fast. Build faster.</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="hackathons.html" class="text-sm text-gray-700 hover:text-[#0A66C2]">Events</a>
+        <a href="profile.html" class="hidden sm:inline text-sm text-gray-700 hover:text-[#0A66C2]">Profile</a>
+
+        <!-- profile icon / dropdown -->
+        <div id="profileBadge" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+          <img id="navAvatar" src="image.png" alt="avatar" class="avatar-sm" />
+          <div class="hidden sm:block text-sm">
+            <div id="navName" class="font-semibold text-[#0A66C2]"></div>
+            <div id="navRole" class="small muted"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main class="pt-24 max-w-7xl mx-auto px-6 pb-20">
+
+    <!-- HERO (welcome + quick stats) -->
+    <section class="card mb-6 fadeIn">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div>
+          <h1 id="heroGreeting" class="text-3xl sm:text-4xl font-extrabold">Welcome back!</h1>
+          <p id="heroSub" class="mt-2 text-gray-700">You’re all set — find teammates, create groups and join events.</p>
+          <div class="mt-4 flex gap-3">
+            <button id="ctaBrowse" class="btn-primary btn-smooth">Browse events</button>
+            <button id="ctaCreate" class="btn-ghost">Create event</button>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 flex gap-4">
+          <div class="flex-1 card">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="muted small">Events</div>
+                <div id="hpEvents" class="text-2xl font-bold text-[#0A66C2]">0</div>
+              </div>
+              <div>
+                <div class="muted small">Saved</div>
+                <div id="hpSaved" class="text-2xl font-bold text-[#0A66C2]">0</div>
+              </div>
+              <div>
+                <div class="muted small">Your groups</div>
+                <div id="hpGroups" class="text-2xl font-bold text-[#0A66C2]">0</div>
+              </div>
+              <div>
+                <div class="muted small">Connections</div>
+                <div id="hpConnections" class="text-2xl font-bold text-[#0A66C2]">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card w-80">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="muted small">Recommended for you</div>
+                <div id="hpRecLabel" class="font-semibold">Based on your skills</div>
+              </div>
+              <div>
+                <button id="refreshRec" class="btn-ghost">Refresh</button>
+              </div>
+            </div>
+
+            <div id="hpRecList" class="mt-3 space-y-2 small muted">No recommendations yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT GRID -->
+    <section class="grid lg:grid-cols-3 gap-6">
+
+      <!-- left: upcoming / recommended -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Recommended events</h3>
+            <a href="hackathons.html" class="text-sm text-[#0A66C2]">See all →</a>
+          </div>
+          <div id="recEvents" class="mt-4 grid md:grid-cols-2 gap-3"></div>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Your groups</h3>
+            <div><button id="manageGroups" class="btn-ghost">Manage</button></div>
+          </div>
+          <div id="hpGroupsList" class="mt-3 space-y-2 small muted">No groups yet.</div>
+        </div>
+      </div>
+
+      <!-- right: profile & activity -->
+      <aside>
+        <div class="card">
+          <div class="flex items-center gap-3">
+            <img id="hpAvatar" class="avatar-sm" src="image.png" alt="avatar" />
+            <div>
+              <div id="hpName" class="font-semibold text-[#0A66C2]"></div>
+              <div id="hpRole" class="muted small"></div>
+            </div>
+          </div>
+
+          <div class="mt-4 small muted">
+            <div id="hpBio">—</div>
+          </div>
+
+          <div class="mt-4">
+            <button id="hpEditProfile" class="w-full btn-primary">Edit profile</button>
+            <button id="hpViewProfile" class="w-full btn-ghost mt-2">View full profile</button>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <h4 class="font-semibold">Categorized summary</h4>
+          <div id="hpCategorySummary" class="mt-3 space-y-2 small muted">No data</div>
+        </div>
+      </aside>
+
+    </section>
+
+    <!-- footer -->
+    <footer class="mt-8 text-center muted small">© <span id="year"></span> LinkedUp — Build teams, make impact.</footer>
+  </main>
+
+  <!-- inline script: dashboard-like behavior for logged home -->
+  <script>
+    // helper functions
+    function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    async function loadUsers(){
+      try{ const raw = localStorage.getItem('LU_USERS'); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
+    }
+    function loadEvents(){
+      try{ const raw = localStorage.getItem('LU_LOCAL_HACKS'); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
+    }
+    function loadMyEvents(){ try{ const r = localStorage.getItem('MY_EVENTS'); return r?JSON.parse(r):[] }catch(e){ return []; } }
+    function loadGroupsForAllEvents(){
+      const out = {}; Object.keys(localStorage).forEach(k=>{ if(k.startsWith('MY_GROUPS_')){ const eid=k.replace('MY_GROUPS_',''); try{ out[eid]=JSON.parse(localStorage.getItem(k))||[] }catch(e){ out[eid]=[] } } }); return out;
+    }
+    function loadConnections(){ try{ const r = localStorage.getItem('CONNECTIONS'); return r?JSON.parse(r):{} }catch(e){ return {}; } }
+
+    // compute recommended events simple heuristic: events sharing skills with current user's skills or theme preference
+    async function computeRecommendedEvents(user, events){
+      if(!user) return [];
+      const uSkills = (Array.isArray(user.skills) ? user.skills : (user.skills?String(user.skills).split(','):[])).map(s=>String(s||'').toLowerCase());
+      // score events by number of matching skills
+      const scored = events.map(ev=>{
+        const es = (ev.skills||[]).map(s=>String(s||'').toLowerCase());
+        const matches = es.filter(x=> uSkills.includes(x) || uSkills.some(us=> x.includes(us) || us.includes(x) ) );
+        return { ev, score: matches.length };
+      }).sort((a,b)=> b.score - a.score);
+      return scored.filter(s=>s.score>0).map(s=>s.ev).slice(0,6);
+    }
+
+    // main render
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      const current = localStorage.getItem('LU_CURRENT_USER');
+      if(!current){ window.location.href = 'index.html'; return; }
+
+      const users = await loadUsers();
+      const me = users.find(u => String(u.id) === String(current) || String(u.email) === String(current));
+
+      // header profile
+      document.getElementById('navName').textContent = me ? (me.name || me.email) : 'You';
+      document.getElementById('navRole').textContent = me ? (me.role || '') : '';
+      const navA = document.getElementById('navAvatar');
+      if(me && me.avatarUrl) navA.src = me.avatarUrl; else navA.src = 'image.png';
+      document.getElementById('profileBadge').onclick = ()=> { window.location.href = 'profile.html'; };
+
+      // hero
+      document.getElementById('heroGreeting').textContent = me ? `Welcome back, ${me.name || me.email}` : 'Welcome back!';
+      document.getElementById('heroSub').textContent = 'Find teammates, create groups and join events tailored to you.';
+
+      // stats and quick lists
+      const events = loadEvents();
+      const myEvents = loadMyEvents();
+      const groupsMap = loadGroupsForAllEvents();
+      const connections = loadConnections();
+
+      document.getElementById('hpEvents').textContent = String(events.length || 0);
+      document.getElementById('hpSaved').textContent = String(myEvents.length || 0);
+
+      // compute user's groups count
+      let userGroups = [];
+      Object.keys(groupsMap).forEach(eid=>{
+        (groupsMap[eid] || []).forEach(g=>{
+          if(Array.isArray(g.members) && g.members.includes(current)) userGroups.push({ eid, group: g });
+        });
+      });
+      document.getElementById('hpGroups').textContent = String(userGroups.length || 0);
+
+      // connections count (number of events connected / unique uids for me)
+      let connCount = 0;
+      Object.keys(connections).forEach(uid=>{
+        if(connections[uid] && connections[uid][/* not filtered by event */ Object.keys(connections[uid])[0]]){}
+      });
+      // simplify: count how many connections entries include current user? We'll show total connected users of current's groups if any
+      // For simplicity show number of distinct uids connected to any event
+      const connectedUids = new Set();
+      Object.keys(connections).forEach(uid => {
+        const byEvents = connections[uid] || {};
+        Object.keys(byEvents).forEach(eid => connectedUids.add(uid));
+      });
+      document.getElementById('hpConnections').textContent = String(connectedUids.size || 0);
+
+      // recommended events (domain-aware)
+      const rec = await computeRecommendedEvents(me, events);
+      const recLabel = rec.length ? 'Recommended for you' : 'Trending events';
+      document.getElementById('hpRecLabel').textContent = recLabel;
+      const recList = document.getElementById('hpRecList');
+      if(!rec.length){
+        // fallback: top 4 events
+        const top = events.slice(0,4);
+        recList.innerHTML = top.length ? top.map(ev=>`<div><a href="#" class="text-sm text-[#0A66C2] rec-event" data-eid="${ev.id}">${escapeHtml(ev.name)}</a><div class="muted small">${escapeHtml(ev.date)} • ${escapeHtml(ev.theme)}</div></div>`).join('') : '<div class="muted small">No events yet</div>';
+      } else {
+        recList.innerHTML = rec.map(ev=>`<div><a href="#" class="text-sm text-[#0A66C2] rec-event" data-eid="${ev.id}">${escapeHtml(ev.name)}</a><div class="muted small">${escapeHtml(ev.date)} • ${escapeHtml(ev.theme)}</div></div>`).join('');
+      }
+
+      // recommended events card grid
+      const recEventsNode = document.getElementById('recEvents');
+      recEventsNode.innerHTML = '';
+      const showEvents = (rec.length? rec : events.slice(0,6)).slice(0,6);
+      if(!showEvents.length) recEventsNode.innerHTML = '<div class="muted">No events to show</div>';
+      else {
+        showEvents.forEach(ev=>{
+          const div = document.createElement('div'); div.className='p-3 border rounded-md';
+          div.innerHTML = `<div class="flex justify-between items-start">
+            <div>
+              <div class="font-semibold text-sm">${escapeHtml(ev.name)}</div>
+              <div class="small muted">${escapeHtml(ev.date)} • ${escapeHtml(ev.theme)}</div>
+              <div class="mt-2 small">${escapeHtml(ev.problem||'—')}</div>
+            </div>
+            <div class="text-right">
+              <button class="btn-ghost open-ev" data-eid="${escapeHtml(ev.id)}">Open</button>
+            </div>
+          </div>`;
+          recEventsNode.appendChild(div);
+        });
+      }
+
+      // groups list
+      const groupsNode = document.getElementById('hpGroupsList');
+      if(!userGroups.length) groupsNode.innerHTML = '<div class="muted small">You are not in any groups yet.</div>';
+      else groupsNode.innerHTML = userGroups.map(g=>`<div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div class="font-semibold">${escapeHtml(g.group.name)}</div><div class="muted small">${escapeHtml(g.eid)}</div></div>
+        <div><button class="btn-ghost open-g" data-eid="${escapeHtml(g.eid)}" data-gid="${escapeHtml(g.group.id)}">Open</button></div>
+      </div>`).join('');
+
+      // profile summary on right
+      const hpName = document.getElementById('hpName'); const hpRole = document.getElementById('hpRole'); const hpBio = document.getElementById('hpBio'); const hpAvatar = document.getElementById('hpAvatar');
+      if(me){ hpName.textContent = me.name || me.email; hpRole.textContent = me.role || ''; hpBio.textContent = me.bio || '—'; if(me.avatarUrl) hpAvatar.src = me.avatarUrl; else hpAvatar.src = 'image.png'; }
+      else { hpName.textContent = 'You'; hpRole.textContent='Member'; hpBio.textContent = '—'; hpAvatar.src='image.png'; }
+
+      // category summary (counts per theme)
+      const categoryNode = document.getElementById('hpCategorySummary'); const themeCounts = {};
+      events.forEach(ev => { themeCounts[ev.theme] = (themeCounts[ev.theme]||0)+1; });
+      categoryNode.innerHTML = Object.keys(themeCounts).length ? Object.keys(themeCounts).map(t=> `<div>${escapeHtml(t)} <span class="muted">(${themeCounts[t]})</span></div>`).join('') : '<div class="muted small">No categorized data</div>';
+
+      // wire interactions
+      document.querySelectorAll('.open-ev').forEach(b=> b.onclick = (ev)=> { ev.preventDefault(); const eid = b.dataset.eid; localStorage.setItem('lastOpenEvent', eid); window.location.href = 'hackathons.html'; });
+      document.querySelectorAll('.rec-event').forEach(a=> a.onclick = (ev)=> { ev.preventDefault(); const eid = a.dataset.eid; localStorage.setItem('lastOpenEvent', eid); window.location.href = 'hackathons.html'; });
+      document.getElementById('ctaBrowse').onclick = ()=> window.location.href = 'hackathons.html';
+      document.getElementById('ctaCreate').onclick = ()=>{
+        // quick add
+        const arr = loadEvents(); const id = 'ev-' + (arr.length + 1) + '-' + Date.now();
+        arr.push({ id, name: 'New Event', date: new Date().toISOString().slice(0,10), theme:'Hackathon', domain:'custom', problem:'Ad-hoc event', skills:['JavaScript'] });
+        localStorage.setItem('LU_LOCAL_HACKS', JSON.stringify(arr)); location.reload();
+      };
+      document.getElementById('manageGroups').onclick = ()=> window.location.href = 'hackathons.html';
+      document.getElementById('hpEditProfile').onclick = ()=> window.location.href = 'profile.html';
+      document.getElementById('hpViewProfile').onclick = ()=> window.location.href = 'profile.html';
+      document.getElementById('refreshRec').onclick = async ()=> { /* recompute */ const rec2 = await computeRecommendedEvents(me, events); alert('Refreshed recommendations: ' + (rec2.length || 0)); };
+
+      // year footer
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+    });
+  </script>
+  <script src="home-logged.js"></script>
+</body>
+</html>
