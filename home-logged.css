@@ -1,0 +1,82 @@
+/* home-logged.css - styles for logged-in homepage (keeps look consistent with index.css/styles.css) */
+
+/* Page background and main card */
+body {
+  background: linear-gradient(180deg,#f8fafc,#ffffff 60%);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #0b2540;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container & cards */
+.card {
+  background: #fff;
+  border: 1px solid #eef6ff;
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 40px rgba(10,102,194,0.06);
+}
+
+/* small UI tokens */
+.avatar-sm { width:44px; height:44px; border-radius:10px; object-fit:cover; border:2px solid #eef6ff; }
+.avatar { width:56px; height:56px; border-radius:12px; object-fit:cover; border:2px solid #eef6ff; }
+.chip { display:inline-block; padding:6px 10px; border-radius:999px; background:#f3f4f6; margin-right:6px; margin-bottom:6px; font-size:13px; cursor:pointer; }
+.muted { color:#6b7280; }
+.metric { font-size:20px; font-weight:700; color:#0A66C2; }
+.small { font-size:13px; color:#334155; }
+.pill { background:#eef6fb; color:#0A66C2; padding:6px 10px; border-radius:999px; font-weight:600; font-size:13px; }
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(90deg,#0A66C2,#2b9cff);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid #dbeafe;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #0A66C2;
+  cursor: pointer;
+}
+
+/* header nav kept fixed (similar to index.css) */
+#siteHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: white;
+}
+main { padding-top: 72px; }
+
+/* detail/hovers and responsive */
+.fadeIn { animation: fadeIn .35s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:none; } }
+
+/* small text helpers */
+.small-muted { color:#6b7280; font-size:13px; }
+.selected-badge { background:#e6f4ff; color:#0a66c2; padding:6px 10px; border-radius:999px; font-size:12px; }
+
+/* grid responsiveness */
+@media (min-width: 1024px) {
+  .layout-3col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+}
+
+/* rec events card */
+.rec-ev-card { border-radius:10px; border:1px solid #eef6ff; padding:12px; background:#fff; transition: box-shadow .12s; }
+.rec-ev-card:hover { box-shadow: 0 12px 30px rgba(10,102,194,0.05); }
+
+/* groups list */
+.group-item { display:flex; justify-content:space-between; align-items:center; padding:8px; border-radius:8px; border:1px solid #f1f5f9; }
