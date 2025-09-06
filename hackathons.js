@@ -8,21 +8,23 @@ let currentPage = 1;
 let HACKS = [];
 let FILTERED = [];
 
-const SKILL_POOL = ['JavaScript','Python','React','Node.js','SQL','AWS','Docker','TypeScript','Django','Flask','TensorFlow'];
-const THEMES = ['Health','Education','Fintech','Sustainability','Agritech','GovTech'];
-const VERBS = ['Optimize','Detect','Predict','Automate','Visualize'];
-const DOMAINS = ['user retention','fraud','energy usage','crop yield','traffic','supply chain'];
+// Pools for generation
+const SKILL_POOL = ['JavaScript','Python','React','Node.js','SQL','AWS','Docker','TypeScript','Django','Flask','TensorFlow','Figma','Unity','C++','Go'];
+const THEMES = ['Health','Education','Fintech','Sustainability','Agritech','GovTech','Games','Study Group'];
+const VERBS = ['Optimize','Detect','Predict','Automate','Visualize','Secure','Gamify','Improve'];
+const DOMAINS = ['user retention','fraud','energy usage','crop yield','traffic','supply chain','learning outcomes','team formation'];
 
 function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
 function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Create a single hackathon object
 function makeHackathon(i){
   const theme = THEMES[i % THEMES.length];
   const verb = VERBS[i % VERBS.length];
   const domain = DOMAINS[i % DOMAINS.length];
-  const name = `${theme} Challenge #${i} — ${verb} ${domain}`;
+  const name = `${theme} Hackathon #${i} — ${verb} ${domain}`;
   const date = new Date(Date.now() + (i*24*60*60*1000)).toISOString().slice(0,10);
   const problem = `Build a ${theme.toLowerCase()} prototype to ${verb.toLowerCase()} ${domain}. Focus on reliability and low-cost infra.`;
   const skills = shuffle([...SKILL_POOL]).slice(0, randInt(3,6));
@@ -42,21 +44,25 @@ function renderGrid(list){
 
   pageItems.forEach(h=>{
     const card = document.createElement('div'); card.className = 'card';
+    // Include skills as chips and small "open" action
+    const skillsHtml = (h.skills || []).map(s => `<span class="chip">${escapeHtml(s)}</span>`).join(' ');
     card.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:12px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
         <div style="flex:1">
-          <h3>${escapeHtml(h.name)}</h3>
-          <div class="meta">${escapeHtml(h.date)} • ${escapeHtml(h.theme)}</div>
-          <p class="problem">${escapeHtml(h.problem)}</p>
+          <h3 style="margin:0 0 6px 0">${escapeHtml(h.name)}</h3>
+          <div class="meta small-muted" style="margin-bottom:8px">${escapeHtml(h.date)} • ${escapeHtml(h.theme)}</div>
+          <p class="problem" style="margin:0 0 8px 0">${escapeHtml(h.problem)}</p>
+          <div>${skillsHtml}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
           <div class="card-footer">
-            <button class="btn" data-id="${escapeHtml(h.id)}">Open</button>
+            <button class="btn btn-open" data-id="${escapeHtml(h.id)}">Open</button>
           </div>
+          <div class="small-muted">ID: ${escapeHtml(h.id)}</div>
         </div>
       </div>`;
-    const btn = card.querySelector('button.btn');
-    btn.addEventListener('click', ()=> openEvent(h.id));
+    const btn = card.querySelector('button.btn-open');
+    if(btn) btn.addEventListener('click', ()=> openEvent(h.id));
     grid.appendChild(card);
   });
 
@@ -316,11 +322,9 @@ function buildEventPage(h){
           div.style.borderBottom = '1px solid #eef6ff';
           div.style.padding = '10px 0';
 
-          /* --- CHANGED: clickable username anchor --- */
-          // create a clickable anchor for the user's name that opens profile-visit.html?uid=<id> in a new tab
-          const uid = encodeURIComponent(u.id || (u.email || u.name || '').replace(/\s+/g, '-'));
+          /* clickable username anchor */
+          const uid = encodeURIComponent(u.id || (u.email || u.name || '').replace(/\\s+/g, '-'));
           const nameLink = '<a class="profile-link" href="profile-visit.html?uid=' + uid + '" target="_blank" rel="noopener" style="font-weight:700;color:inherit;text-decoration:none">' + escapeHtmlLocal(u.name||u.email) + '</a>';
-          /* ------------------------------------------------ */
 
           div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center"><div>' +
                           '<div>' + nameLink + '</div>' +
@@ -421,43 +425,56 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
   }catch(e){ /* ignore */ }
 
-  if(!loaded) regenLocal(100);
+  if(!loaded) regenLocal(100); // generate 100 like original
 
+  // wire search input
   const globalSearch = document.getElementById('globalSearch');
   if(globalSearch) globalSearch.addEventListener('input', filterGrid);
 
-  renderGrid(FILTERED);
+  // wire regen button if present
+  const regenBtn = document.getElementById('regenBtn');
+  if(regenBtn) regenBtn.addEventListener('click', ()=> { if(confirm('Regenerate 100 sample hackathons? This will overwrite LU_LOCAL_HACKS.')) { regenLocal(100); alert('Regenerated 100 hackathons'); } });
 
-  // --- NEW: refresh user count on load (calls loadAllUsersMerged when available)
-  if (typeof refreshUserCount === 'function') {
-    // if defined earlier (unlikely) call it
-    refreshUserCount();
-  } else {
-    // define fallback here (so other scripts can call window.refreshUserCount)
-    window.refreshUserCount = async function refreshUserCount(){
-      try{
-        const el = document.getElementById('userCount');
-        if(!el) return;
-        if(typeof loadAllUsersMerged === 'function'){
-          const users = await loadAllUsersMerged();
-          el.textContent = Array.isArray(users) ? String(users.length) : '0';
-        } else {
-          const raw = localStorage.getItem('LU_USERS') || '[]';
-          let arr = [];
-          try{ arr = JSON.parse(raw); }catch(e){ arr = []; }
-          el.textContent = Array.isArray(arr) ? String(arr.length) : '0';
-        }
-      }catch(err){
-        console.warn('refreshUserCount failed', err);
-      }
-    };
-    // initial call
-    window.refreshUserCount();
+  // populate category filter if present
+  const categoryFilter = document.getElementById('categoryFilter');
+  if(categoryFilter){
+    const cats = Array.from(new Set((HACKS||[]).map(h=>h.theme))).filter(Boolean);
+    categoryFilter.innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    categoryFilter.addEventListener('change', function(){
+      const v = categoryFilter.value;
+      if(!v){ FILTERED = HACKS.slice(); renderGrid(FILTERED); return; }
+      FILTERED = HACKS.filter(h => String(h.theme) === String(v));
+      currentPage = 1; renderGrid(FILTERED);
+    });
   }
+
+  // populate skill cloud (quick filters)
+  const skillCloud = document.getElementById('skillCloud');
+  if(skillCloud){
+    const pool = new Set();
+    (HACKS||[]).forEach(h => (h.skills||[]).forEach(s => pool.add(s)));
+    skillCloud.innerHTML = Array.from(pool).map(s => `<span class="chip" data-skill="${escapeHtml(s)}">${escapeHtml(s)}</span>`).join(' ');
+    // click to filter by skill
+    skillCloud.querySelectorAll && skillCloud.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', ()=>{
+      const sk = ch.dataset.skill;
+      FILTERED = HACKS.filter(h => (h.skills||[]).map(x=>String(x||'').toLowerCase()).includes(String(sk||'').toLowerCase()));
+      currentPage = 1; renderGrid(FILTERED);
+    }));
+  }
+
+  // update user count (if element exists) using LU_USERS + users.csv
+  (async function updateUserCount(){
+    try{
+      const users = await loadAllUsersMerged();
+      const el = document.getElementById('userCount');
+      if(el) el.textContent = String(users.length || 0);
+    }catch(e){}
+  })();
+
+  renderGrid(FILTERED);
 });
 
 // --- CLICK-DELEGATE: open profile page when username / row clicked ---
-// Paste this at the end of your hackathons.js (after DOMContentLoaded block or at file bottom)
 document.addEventListener('click', function (e) {
   // if clicked an actual anchor -> let it work normally
   if (e.target.tagName === 'A') return;
@@ -481,31 +498,4 @@ document.addEventListener('click', function (e) {
   // open profile visit page (use the file you created)
   const url = 'profile-visit.html?uid=' + encodeURIComponent(uid);
   window.open(url, '_blank', 'noopener');
-});
-
-// --- NEW: listen for LU_USERS storage changes (other tabs) and refresh count ---
-window.addEventListener('storage', function(ev){
-  try{
-    if(!ev) return;
-    if(ev.key === 'LU_USERS'){
-      if(typeof window.refreshUserCount === 'function') window.refreshUserCount();
-    }
-  }catch(e){ /* ignore */ }
-});
-
-// expose refreshUserCount globally (so registration code can call it immediately after saving)
-window.refreshUserCount = window.refreshUserCount || (async function(){
-  try{
-    const el = document.getElementById('userCount');
-    if(!el) return;
-    if(typeof loadAllUsersMerged === 'function'){
-      const users = await loadAllUsersMerged();
-      el.textContent = Array.isArray(users) ? String(users.length) : '0';
-    } else {
-      const raw = localStorage.getItem('LU_USERS') || '[]';
-      let arr = [];
-      try{ arr = JSON.parse(raw); }catch(e){ arr = []; }
-      el.textContent = Array.isArray(arr) ? String(arr.length) : '0';
-    }
-  }catch(e){ console.warn('refreshUserCount fallback error', e); }
 });
