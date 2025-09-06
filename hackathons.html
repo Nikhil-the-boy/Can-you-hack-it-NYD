@@ -3,67 +3,177 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LinkedUp — Hackathons</title>
+  <title>LinkedUp — Events</title>
+   
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Optional CSS (keep your styles.css) -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="index.css">
+
   <style>
-    :root{--accent:#0A66C2;--muted:#6b7280}
-    body{font-family:Inter,system-ui,Roboto,Arial;margin:0;background:#f7fbff;color:#0b2540}
-    header{padding:18px 22px;background:#fff;border-bottom:1px solid #eef4ff;display:flex;align-items:center;justify-content:space-between}
-    h1.site-title{margin:0;font-size:20px;color:var(--accent)}
-    .container{max-width:1100px;margin:20px auto;padding:0 18px}
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-    .btn{background:linear-gradient(90deg,var(--accent),#2b9cff);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-    .btn.ghost{background:#fff;color:var(--accent);border:1px solid #e6f0fb}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    .card{background:#fff;padding:12px;border-radius:10px;border:1px solid #eef6ff;box-shadow:0 6px 18px rgba(12,35,60,0.03)}
-    .card h3{margin:0 0 6px 0;font-size:15px}
-    .meta{font-size:13px;color:var(--muted);margin-bottom:8px}
-    .problem{color:#153241;font-size:14px;height:48px;overflow:hidden}
-    .card-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-    #panel-right{position:fixed;right:18px;top:84px;width:320px;background:#fff;padding:12px;border-radius:10px;border:1px solid #eef6ff;box-shadow:0 8px 30px rgba(12,35,60,0.06)}
-    #panel-right h4{margin:0 0 8px 0;color:var(--accent)}
-    input[type="search"], input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid #eaeef6;margin-bottom:8px}
-    .skills-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-    .chip{padding:6px 8px;border-radius:6px;background:#f3f6fb;border:1px solid #e9f6ff;font-size:13px}
-    .match{padding:8px;border-radius:8px;background:#f8fffb;border:1px solid #e8fdef;margin-bottom:8px}
-    @media(max-width:900px){ .grid{grid-template-columns:1fr} #panel-right{position:static;width:auto;margin-top:14px} }
+    /* small overrides for the events page (if you want, move to dedicated CSS) */
+    .card{ background:#fff;border:1px solid #eef6ff;border-radius:12px;padding:14px;transition:transform .14s ease,box-shadow .14s ease; }
+    .card:hover{ transform:translateY(-6px); box-shadow:0 12px 30px rgba(10,102,194,0.06); }
+    .chip{ display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f4f6;margin-right:6px;margin-bottom:6px; font-size:13px; cursor:pointer; }
+    .btn-primary{ background:linear-gradient(90deg,#0A66C2,#2b9cff); color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+    .btn-ghost{ background:transparent; border:1px solid #dbeafe; padding:8px 12px; border-radius:8px; color:#0A66C2; cursor:pointer; }
+    .small-muted { color:#6b7280; font-size:13px; }
+    /* detail panel */
+    #detailPanel { position:fixed; right:0; top:0; bottom:0; width:420px; max-width:100%; transform:translateX(100%); transition: transform .28s ease; z-index:80; box-shadow:-20px 0 60px rgba(2,6,23,0.12); background:#fff; }
+    #detailPanel.open{ transform:translateX(0%); }
   </style>
 </head>
-<body>
-  <header>
-    <h1 class="site-title">Hackathons</h1>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div id="userSummary" style="font-size:14px;color:var(--muted)">Users: <span id="userCount">0</span></div>
-      <button id="refreshUsersBtn" class="btn ghost">Refresh Users</button>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+
+  <!-- NAVBAR (same visual as index) -->
+  <header id="siteHeader" class="w-full fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+    <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="mobileMenuBtn" type="button" class="p-2 rounded text-gray-700 hover:bg-gray-100 md:hidden" aria-label="open menu">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <img src="image.png" alt="LinkedUp Logo" class="w-10 h-10 rounded-md object-cover" />
+        <div>
+          <div class="text-lg font-bold text-[#0A66C2] leading-none">LinkedUp</div>
+          <div class="text-xs muted -mt-0.5">Connect fast. Build faster.</div>
+        </div>
+      </div>
+
+      <div id="navLinks" class="hidden md:flex items-center gap-6 text-sm">
+        <!-- keep href="index.html" here: common.js will intercept for logged-in users -->
+        <a href="index.html" class="text-gray-700 hover:text-[#0A66C2]">Home</a>
+        <a href="hackathons.html" class="text-gray-700 hover:text-[#0A66C2]">Events</a>
+        <a href="profile.html" class="text-gray-700 hover:text-[#0A66C2]">Profile</a>
+        <a href="index.html" class="px-4 py-2 rounded-lg bg-[#0A66C2] text-white hover:bg-[#004182] transition">Register</a>
+      </div>
+    </nav>
+
+    <!-- Mobile nav -->
+    <div id="mobileNav" class="md:hidden hidden bg-white border-t border-gray-100">
+      <div class="px-4 py-3 flex flex-col gap-2">
+        <a href="index.html" class="block text-gray-700 py-2">Home</a>
+        <a href="hackathons.html" class="block text-gray-700 py-2">Events</a>
+        <a href="profile.html" class="block text-gray-700 py-2">Profile</a>
+        <a href="index.html" class="block text-gray-700 py-2">Register</a>
+      </div>
     </div>
   </header>
 
-  <div class="container">
-    <div class="controls">
-      <button id="genBtn" class="btn">Generate 100 Hackathons</button>
-      <button id="loadLocalBtn" class="btn ghost">Load Local Cache</button>
-      <input id="globalSearch" type="search" placeholder="Search hackathons..." />
-      <div style="margin-left:auto;color:var(--muted)">Showing <span id="hackCount">0</span> events</div>
-    </div>
+  <!-- MAIN content (similar layout to previous) -->
+  <main class="pt-28 max-w-6xl mx-auto px-6">
+    <section class="mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <input id="globalSearch" type="search" placeholder="Search events, skills, theme..." class="px-4 py-3 rounded-lg border w-[320px]" />
+          <select id="categoryFilter" class="px-3 py-3 rounded-lg border"></select>
+          <button id="resetFilters" class="btn-ghost">Reset</button>
+        </div>
 
-    <section id="grid" class="grid" aria-live="polite"></section>
+        <div class="flex items-center gap-3">
+          <div class="text-sm text-gray-600">Users: <span id="userCount">0</span></div>
+          <button id="regenBtn" class="btn-primary">Regenerate</button>
+        </div>
+      </div>
+    </section>
 
-    <div style="text-align:center;margin-top:14px;color:var(--muted)">
-      Click "Open" to view details and skills required. Scroll the right panel to search teammates by skills.
+    <section class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <div id="grid" class="grid grid-cols-1 gap-4"></div>
+        <div id="pagination" class="mt-4 flex items-center gap-2"></div>
+      </div>
+
+      <aside class="space-y-4">
+        <div class="card">
+          <h4 class="font-semibold mb-2">Quick Filters</h4>
+          <div class="mb-3">
+            <div class="text-xs muted mb-2">Click skill chip to filter</div>
+            <div id="skillCloud"></div>
+          </div>
+          <div>
+            <h5 class="text-sm muted mb-2">My Events</h5>
+            <div id="myEventsList" class="text-sm"></div>
+            <div class="mt-3 flex gap-2">
+              <button id="clearMyEvents" class="btn-ghost">Clear</button>
+              <button id="exportMyEvents" class="btn-ghost">Export</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 class="font-semibold mb-2">Tips</h4>
+          <p class="text-sm muted">Open an event to see suggested users matched to that event's skills. Select users to create a group and connect them.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- DETAIL PANEL -->
+  <div id="detailPanel" aria-hidden="true">
+    <div class="panel-body p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 id="detailTitle" class="text-xl font-bold"></h2>
+          <div id="detailMeta" class="small-muted mt-1"></div>
+        </div>
+        <div><button id="closeDetail" class="text-gray-700">✕</button></div>
+      </div>
+
+      <p id="detailProblem" class="mt-4 text-gray-800"></p>
+      <div id="detailSkills" class="mt-4"></div>
+
+      <div class="mt-6">
+        <h3 class="font-semibold mb-2">Users available for this event</h3>
+        <div id="usersForEvent" class="space-y-3 small-muted">Loading users…</div>
+      </div>
+
+      <div class="mt-6">
+        <button id="detailSaveEvent" class="btn-primary">Save to My Events</button>
+        <button id="detailExportTeam" class="btn-ghost">Export Groups</button>
+      </div>
     </div>
   </div>
 
-  <!-- Right panel: skills API + teammates search -->
-  <aside id="panel-right" aria-label="Tools">
-    <h4>Skills for selected event</h4>
-    <div id="selectedEventName" style="font-weight:700;margin-bottom:6px">(Select an event)</div>
-    <div id="skillsArea" class="skills-list"></div>
-    <hr style="margin:10px 0">
-    <h4>Search teammates by skills</h4>
-    <input id="teammateSkillQuery" type="text" placeholder="e.g. JavaScript, React" />
-    <button id="searchTeammatesBtn" class="btn" style="width:100%;margin-bottom:8px">Search</button>
-    <div id="teammateResults"></div>
-  </aside>
+  <!-- IMPORT TOOLBAR (optional) -->
+  <div id="importToolbar" class="fixed bottom-4 left-4 z-50 p-3 bg-white rounded-lg shadow-md">
+    <div class="flex gap-2 items-center">
+      <!-- Removed the visible file input to match your request (no choose-file visible). Use import button to trigger hidden input if needed -->
+      <input id="importFileHidden" type="file" accept=".csv,.xlsx,.xls" style="display:none;" />
+      <button id="importBtn" class="px-3 py-2 rounded bg-[#0A66C2] text-white">Import</button>
+      <button id="importAppendBtn" class="px-3 py-2 rounded border">Append</button>
+      <button id="importReplaceBtn" class="px-3 py-2 rounded border">Replace</button>
+      <span id="importStatus" class="text-sm text-gray-600 ml-2"></span>
+    </div>
+  </div>
 
+  <!-- SCRIPTS -->
+  <!-- common.js must be included on all pages (intercepts Home -> home-logged) -->
+  <script src="common.js"></script>
+
+  <!-- load hackathons module (your existing script). keep 'type="module"' if original expects that -->
   <script type="module" src="hackathons.js"></script>
+
+  <!-- small initializer: open lastOpenEvent if available -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      try{
+        const last = localStorage.getItem('lastOpenEvent');
+        if(last && window.openEvent && typeof window.openEvent === 'function'){
+          // clear after consuming
+          localStorage.removeItem('lastOpenEvent');
+          // call openEvent (this opens the detail page in a new tab in original logic)
+          try{ window.openEvent(last); }catch(e){ console.warn('openEvent failed', e); }
+        }
+      }catch(e){}
+    });
+
+    // wire import toolbar to hidden input
+    document.addEventListener('click', function(e){
+      if(e.target && e.target.id === 'importBtn'){ document.getElementById('importFileHidden').click(); }
+    });
+  </script>
+  <script defer src="common.js"></script>
 </body>
 </html>
