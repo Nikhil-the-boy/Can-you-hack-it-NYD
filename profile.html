@@ -1,73 +1,309 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>LinkedUp — Signup</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LinkedUp — Profile</title>
+
+  <!-- Tailwind CDN (optional; you already use styles.css) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your main styles -->
+  <link rel="stylesheet" href="styles.css">
+
   <style>
-    body{font-family:Inter,system-ui,Arial;margin:0;background:#f7fbff;color:#0b2540}
-    .wrap{max-width:720px;margin:36px auto;padding:20px;background:#fff;border-radius:12px;border:1px solid #eef6ff}
-    h1{color:#0A66C2;margin:0 0 8px}
-    label{display:block;margin-top:10px;font-size:14px;color:#334155}
-    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef8;margin-top:6px}
-    .small{max-width:220px;display:inline-block}
-    .row{display:flex;gap:10px}
-    .btn{margin-top:14px;padding:10px 14px;background:linear-gradient(90deg,#0A66C2,#2b9cff);color:#fff;border:none;border-radius:8px;cursor:pointer}
-    .link{margin-top:10px;display:inline-block;color:#0A66C2}
-    .muted{color:#6b7280;font-size:13px;margin-top:6px}
-    .note{font-size:13px;color:#6b7280;margin-top:8px}
+    /* small page-specific styles to ensure profile layout looks good */
+    .container { max-width:1100px; margin:28px auto; padding:0 18px; }
+    .profile-header { display:flex; gap:18px; align-items:center; }
+    .profile-card { background:#fff; padding:18px; border-radius:12px; border:1px solid #eef2f7; box-shadow: 0 4px 12px rgba(10,37,64,0.03); }
+    .avatar-lg { width:120px; height:120px; border-radius:12px; object-fit:cover; }
+    .muted { color:#6b7280; }
+    .small { font-size:13px; color:#6b7280; }
+    .stat { background:#f8fafc; padding:12px; border-radius:10px; text-align:center; }
+    .chip { display:inline-block; padding:6px 10px; border-radius:999px; background:#f1f5f9; color:#0A66C2; margin-right:6px; margin-bottom:6px; font-size:13px; }
+    .group-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border-radius:10px; border:1px solid #eef2f7; background:#fff; margin-bottom:8px; }
+    .btn-ghost { background:transparent; border:1px solid #e6eef8; padding:6px 10px; border-radius:8px; cursor:pointer; color:#0A66C2; }
+    .btn-ghost:hover { background:#f1f9ff; }
+    .danger { background:#fff0f0; border:1px solid #ffd6d6; color:#b91c1c; padding:6px 10px; border-radius:8px; cursor:pointer; }
+    .avatar-sm { width:40px; height:40px; border-radius:8px; object-fit:cover; }
+    .muted.small { font-size:13px; }
+    .modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; background:rgba(10,20,30,0.35); }
+    .modal-panel { width:100%; max-width:720px; }
+    .hidden { display:none; }
+    .chat-message { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed #eef6ff; }
+    .chat-meta { color:#6b7280; font-size:12px; margin-left:8px; }
+    .muted.small { color:#6b7280; font-size:13px; }
+    .input { border:1px solid #e6eef8; padding:8px 10px; border-radius:8px; }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <h1>Create your profile</h1>
-    <p class="muted">Signup here — details will be stored locally (LU_USERS) and will be searchable on Hackathons page.</p>
+<body class="bg-gray-50 text-gray-900">
 
-    <form id="signupForm" autocomplete="on">
-      <label>Full name
-        <input type="text" id="fullname" name="fullname" placeholder="e.g. Yash Kumar" required />
-      </label>
-
-      <label>Email
-        <input type="email" id="email" name="email" placeholder="you@example.com" required />
-      </label>
-
-      <label>Role (e.g. Frontend, Backend, ML)
-        <input type="text" id="role" name="role" placeholder="Frontend" />
-      </label>
-
-      <div class="row" style="margin-top:6px">
-        <div class="small">
-          <label>Experience (years)
-            <input type="number" id="experience" name="experience" min="0" max="50" step="1" value="0" />
-          </label>
+  <!-- header -->
+  <header class="w-full bg-white shadow-sm">
+    <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="image.png" alt="logo" class="w-10 h-10 rounded-md object-cover" />
+        <div>
+          <div class="text-lg font-bold text-[#0A66C2]">LinkedUp</div>
+          <div class="text-xs muted">Logged in</div>
         </div>
-        <div style="flex:1">
-          <label>Skills (comma separated)
-            <input type="text" id="skills" name="skills" placeholder="JavaScript, React, Node.js" />
-          </label>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="hackathons.html" class="text-sm text-gray-700 hover:text-[#0A66C2]">Events</a>
+        <a href="profile.html" class="text-sm text-[#0A66C2] font-semibold">Profile</a>
+        <button id="logoutBtn" class="px-3 py-2 rounded-lg border">Logout</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div style="height:22px"></div> <!-- spacing for fixed header -->
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- left column -->
+      <div class="profile-card">
+        <div class="profile-header">
+          <img id="profileAvatar" class="avatar-lg" src="image.png" alt="avatar">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <h2 id="profileName" class="text-2xl font-bold">Your Name</h2>
+              <button id="editProfileBtn" class="btn-ghost">Edit</button>
+            </div>
+            <div id="profileRole" class="muted small">Role</div>
+            <div id="profileEmail" class="muted small mt-2">email@example.com</div>
+            <p id="profileBio" class="mt-3 text-gray-700">A short bio will appear here.</p>
+
+            <div class="mt-4 flex gap-2">
+              <button id="exportProfileBtn" class="btn-ghost">Export</button>
+              <button id="refreshGroups" class="btn-ghost">Refresh</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 gap-3">
+          <div class="stat">
+            <div class="text-sm muted">Events</div>
+            <div id="statEvents" class="text-xl font-bold">0</div>
+          </div>
+          <div class="stat">
+            <div class="text-sm muted">Groups Created</div>
+            <div id="statGroupsCreated" class="text-xl font-bold">0</div>
+          </div>
+          <div class="stat">
+            <div class="text-sm muted">Groups Joined</div>
+            <div id="statGroupsJoined" class="text-xl font-bold">0</div>
+          </div>
         </div>
       </div>
 
-      <label>Short bio (optional)
-        <textarea id="bio" rows="3" placeholder="One-line about you"></textarea>
-      </label>
+      <!-- middle column -->
+      <div class="space-y-6">
+        <div class="profile-card">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Your Created Groups</h3>
+            <button id="createGroupBtn" class="btn-ghost">Create Group</button>
+          </div>
+          <div id="createdGroupsList" class="mt-4">
+            <!-- created groups injected here -->
+          </div>
+        </div>
 
-      <div style="display:flex;gap:8px;align-items:center">
-        <button type="submit" class="btn">Save & go to Hackathons</button>
-        <button type="button" id="clearBtn" style="background:#f3f4f6;color:#0b2540;border-radius:8px;padding:10px 12px;border:none;cursor:pointer">Clear form</button>
+        <div class="profile-card">
+          <h3 class="text-lg font-semibold">Groups You Joined</h3>
+          <div id="joinedGroupsList" class="mt-4">
+            <!-- joined groups injected here -->
+          </div>
+        </div>
       </div>
-    </form>
 
-    <div class="note">
-      Tip: If you already signed up earlier, the form will be pre-filled. You can update or create a new entry.
+      <!-- right column -->
+      <div class="space-y-6">
+        <div class="profile-card">
+          <h3 class="text-lg font-semibold">Invitations</h3>
+          <div id="inboxInvites" class="mt-3 muted small">Invites appear when someone invites you to a group.</div>
+        </div>
+
+        <div class="profile-card">
+          <h3 class="text-lg font-semibold">Quick Actions</h3>
+          <div class="mt-3">
+            <div class="mb-2">Invite someone to active group (open a group → Members → Invite)</div>
+            <div class="flex gap-2">
+              <input id="inviteInput" class="input flex-1" placeholder="email or user id (for tests)" />
+              <button id="sendInviteBtn" class="btn-ghost">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div style="margin-top:12px">
-      <a href="hackathons.html" class="link">Skip signup — go to hackathons</a>
+    <!-- spacer -->
+    <div style="height:18px"></div>
+
+    <footer class="text-center py-6 text-sm muted">
+      &copy; <span id="yearFooter"></span> LinkedUp
+    </footer>
+  </main>
+
+  <!-- MEMBERS MODAL -->
+  <div id="membersModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-panel profile-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="membersTitle">Group members</h3>
+        <button id="membersClose" class="btn-ghost">Close</button>
+      </div>
+
+      <div style="display:flex;gap:18px;margin-top:12px">
+        <div style="flex:1">
+          <div id="membersList" style="max-height:320px; overflow:auto; margin-bottom:10px"></div>
+
+          <div style="margin-top:10px">
+            <h4 class="text-sm font-semibold">Invited Users</h4>
+            <div id="invitesList" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div style="width:320px">
+          <div style="margin-bottom:10px">
+            <h4 class="text-sm font-semibold">Group Chat</h4>
+            <div id="chatBox" style="height:220px; overflow:auto; padding:8px; background:#fbfdff; border-radius:8px; border:1px solid #eef6ff; margin-bottom:8px"></div>
+            <div style="display:flex;gap:8px">
+              <input id="chatInput" class="input" placeholder="Message..." />
+              <button id="chatSendBtn" class="btn-ghost">Send</button>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <h4 class="text-sm font-semibold">Invite by email</h4>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input id="inviteInputModal" class="input" placeholder="someone@example.com" />
+              <button id="sendInviteBtnModal" class="btn-ghost">Invite</button>
+            </div>
+            <div class="small muted mt-2">Note: invites saved locally — invitee will see invite after logging in.</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script type="module" src="profile.js"></script>
+  <!-- CREATE GROUP MODAL -->
+  <div id="createGroupModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-panel profile-card">
+      <h3>Create Group</h3>
+      <form id="createGroupForm" class="mt-4 space-y-3">
+        <div>
+          <label class="small muted">Event</label>
+          <select id="cgEventSelect" class="input w-full"></select>
+        </div>
+        <div>
+          <label class="small muted">Group Name</label>
+          <input id="cgName" class="input w-full" placeholder="Group name" />
+        </div>
+        <div>
+          <label class="small muted">Members (comma separated user IDs or emails)</label>
+          <input id="cgMembers" class="input w-full" placeholder="user1@example.com, user2@example.com" />
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button type="button" id="cgCancel" class="btn-ghost">Cancel</button>
+          <button type="submit" class="btn-ghost">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div id="editProfileModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-panel profile-card">
+      <h3>Edit Profile</h3>
+      <form id="profileForm" class="mt-4 space-y-3">
+        <div>
+          <label class="small muted">Full name</label>
+          <input id="pfName" name="fullname" class="input w-full" />
+        </div>
+        <div>
+          <label class="small muted">Email</label>
+          <input id="pfEmail" name="email" class="input w-full" />
+        </div>
+        <div>
+          <label class="small muted">Role</label>
+          <input id="pfRole" name="role" class="input w-full" />
+        </div>
+        <div>
+          <label class="small muted">Bio</label>
+          <textarea id="pfBio" name="bio" class="input w-full" rows="3"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button type="button" id="pfCancel" class="btn-ghost">Cancel</button>
+          <button type="submit" class="btn-ghost">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- hidden fields / small controls -->
+  <div style="display:none">
+    <button id="sendInviteBtn" aria-hidden="true"></button>
+  </div>
+
+  <!-- include common auth helper first -->
+  <script src="common.js"></script>
+
+  <!-- profile logic -->
+  <script src="profile.js"></script>
+
+  <!-- small page scripts to wire some modal local inputs -->
+  <script>
+    // wire invite button in main right column to modal send
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sendModalBtn = document.getElementById('sendInviteBtnModal');
+      const inviteInputModal = document.getElementById('inviteInputModal');
+      const inviteInputMain = document.getElementById('inviteInput');
+      const sendMainBtn = document.getElementById('sendInviteBtn');
+
+      // proxy main invite to backend logic if user opened a group
+      if(sendMainBtn && inviteInputMain){
+        sendMainBtn.addEventListener('click', ()=> {
+          const val = inviteInputMain.value.trim();
+          if(!val) return alert('Enter an email or id to invite');
+          // If members modal active, try to call sendInvite via profile.js expectation
+          try{
+            // Use the global helper (profile.js wires a listener to element #sendInviteBtn)
+            // To reuse same code, we dispatch a click on hidden #sendInviteBtn and set activeModal earlier via opening group
+            const h = document.getElementById('sendInviteBtn');
+            if(h){
+              // set activeModal to last opened via profile.js (it stores activeModal internally)
+              // As a fallback, just save the invite under a default event/group (not ideal)
+            }
+            // fallback: simply prompt user to open group first
+            alert('Open a group members modal and invite from there, or use the group members UI.');
+          }catch(e){
+            console.warn(e);
+            alert('Invite action failed');
+          }
+        });
+      }
+
+      if(sendModalBtn && inviteInputModal){
+        sendModalBtn.addEventListener('click', ()=> {
+          const val = (inviteInputModal.value||'').trim();
+          if(!val) return alert('Enter an email or id');
+          // profile.js expects a global button with id sendInviteBtn wired to activeModal
+          // We'll try to forward the value to that flow by setting #inviteInput (main) and clicking global #sendInviteBtn
+          try{
+            const mainInput = document.getElementById('inviteInput');
+            if(mainInput) mainInput.value = val;
+            const hiddenSend = document.getElementById('sendInviteBtn');
+            if(hiddenSend){
+              hiddenSend.click(); // profile.js listens for click on 'sendInviteBtn' and will read activeModal
+            } else {
+              alert('Invite failed: internal hook missing');
+            }
+          }catch(err){ console.warn(err); alert('Invite failed'); }
+        });
+      }
+
+      // set footer year
+      const y = document.getElementById('yearFooter');
+      if(y) y.textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 </html>
