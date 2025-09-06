@@ -27,6 +27,7 @@
 </head>
 <body>
   <div class="wrap">
+    <div style="margin-bottom:8px"><a href="hackathons.html" class="link">← Back to Events</a></div>
     <div class="card" id="profileCard">
       <div class="row">
         <div class="avatar" id="avatar">U</div>
@@ -72,7 +73,7 @@ const DUMMY_USERS = {
 };
 
 /* ---------- storage keys ---------- */
-const KEY_CURRENT = 'CURRENT_USER';       // stores current logged-in user id (string)
+const KEY_CURRENT = 'CURRENT_USER';       // current logged-in user id (string)
 const KEY_USERS   = 'LU_USERS';           // optional array of user objects
 const KEY_REQ     = 'LU_REQUESTS';        // array of request {id,from,to,status,ts}
 const KEY_CONNS   = 'LU_CONNECTIONS';     // object map { userId: [connectedUserIds...] }
@@ -85,18 +86,9 @@ function loadJSON(k, fallback){ try{ const r = localStorage.getItem(k); return r
 function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 
 /* ---------- current user management ---------- */
-function getCurrentUserId(){
-  return localStorage.getItem(KEY_CURRENT) || null;
-}
-function setCurrentUserId(id){
-  if(!id) localStorage.removeItem(KEY_CURRENT);
-  else localStorage.setItem(KEY_CURRENT, id);
-  renderCurrentUserUI();
-}
-function renderCurrentUserUI(){
-  const cur = getCurrentUserId();
-  qs('currentUserDisplay').textContent = cur || 'Not set';
-}
+function getCurrentUserId(){ return localStorage.getItem(KEY_CURRENT) || null; }
+function setCurrentUserId(id){ if(!id) localStorage.removeItem(KEY_CURRENT); else localStorage.setItem(KEY_CURRENT, id); renderCurrentUserUI(); }
+function renderCurrentUserUI(){ const cur = getCurrentUserId(); qs('currentUserDisplay').textContent = cur || 'Not set'; }
 
 /* ---------- load profile data (priority: LU_USERS -> dummy -> null) ---------- */
 function getProfile(uid){
@@ -104,7 +96,6 @@ function getProfile(uid){
   const found = (localUsers||[]).find(u => u.id===uid || u.email===uid || u.name===uid);
   if(found) return found;
   if(DUMMY_USERS[uid]) return DUMMY_USERS[uid];
-  // fallback: see if user object stored in localstorage array as email/id
   return null;
 }
 
@@ -116,7 +107,6 @@ function saveConnections(obj){ saveJSON(KEY_CONNS, obj); }
 
 function sendRequest(from, to){
   const reqs = getRequests();
-  // prevent duplicate pending request
   const dup = reqs.find(r => r.from===from && r.to===to && r.status==='pending');
   if(dup) return { ok:false, message:'Request already pending' };
   const id = 'r_' + Math.random().toString(36).slice(2,9);
@@ -134,7 +124,6 @@ function acceptRequest(reqId){
   r.status = 'accepted';
   r.resolvedAt = nowTs();
   saveRequests(reqs);
-  // add to connections both ways
   const conns = getConnections();
   conns[r.from] = Array.from(new Set([...(conns[r.from]||[]), r.to]));
   conns[r.to]   = Array.from(new Set([...(conns[r.to]||[]), r.from]));
@@ -169,7 +158,6 @@ function renderProfile(uid){
   qs('username').textContent = (p.username ? ('@'+p.username) : (p.email || p.id));
   qs('location').textContent = p.location || '';
   qs('bio').textContent = p.bio || '';
-  // skills
   const sk = qs('skills'); sk.innerHTML = '';
   (p.skills||[]).forEach(s=>{
     const sp = document.createElement('div'); sp.className='chip'; sp.textContent = s; sk.appendChild(sp);
@@ -216,13 +204,11 @@ function showStatus(msg, isError){
 /* ---------- initialization ---------- */
 function init(){
   renderCurrentUserUI();
-  // populate tester select with dummy users + saved LU_USERS
   const sel = qs('setUserSelect');
   sel.innerHTML = '';
   Object.keys(DUMMY_USERS).forEach(k=>{
     const o = document.createElement('option'); o.value = k; o.textContent = DUMMY_USERS[k].name + ' ('+k+')'; sel.appendChild(o);
   });
-  // also include LU_USERS if any
   const localUsers = loadJSON(KEY_USERS, []);
   (localUsers||[]).forEach(u=>{
     const o = document.createElement('option'); o.value = u.id || u.email || u.name; o.textContent = (u.name||u.email) + ' (custom)'; sel.appendChild(o);
@@ -236,17 +222,15 @@ function init(){
   });
   qs('clearBtn').addEventListener('click', ()=>{ setCurrentUserId(null); showStatus('CURRENT_USER cleared'); updateButtons(); });
 
-  // read uid from query
   const uid = getQuery('uid') || getQuery('id') || null;
   renderProfile(uid);
   renderCurrentUserUI();
   renderIncomingRequestsFor(uid);
 
-  // Wire Up Together button
   qs('upBtn').addEventListener('click', ()=>{
     const from = getCurrentUserId();
     const to = uid;
-    if(!from){ // prompt to set
+    if(!from){
       const should = confirm('No CURRENT_USER set. Set to one of the demo users now? (OK to set Alice)');
       if(should){ setCurrentUserId('alice'); showStatus('CURRENT_USER set to alice'); renderCurrentUserUI(); updateButtons(); }
       else return;
@@ -255,43 +239,34 @@ function init(){
     const res = sendRequest(getCurrentUserId(), to);
     if(res.ok){ showStatus('Request sent to ' + (getProfile(to)?.name || to)); }
     else showStatus(res.message, true);
-    renderIncomingRequestsFor(uid); // in case recipient == current user
+    renderIncomingRequestsFor(uid);
     updateButtons();
   });
 
-  // Message button (demo)
   qs('msgBtn').addEventListener('click', ()=> alert('Messaging flow not implemented in demo.'));
 
-  // populate current user select default if none
   if(!getCurrentUserId()){
-    // set to alice by default for easy testing (but not forced)
-    // do nothing; user can set.
+    // optional: prompt quickly
+    setTimeout(()=>{ if(confirm('Set demo CURRENT_USER to Alice for testing? (OK = Alice)')) { setCurrentUserId('alice'); showStatus('CURRENT_USER set to alice'); updateButtons(); } }, 600);
   }
 
-  // update UI on storage change (another tab)
   window.addEventListener('storage', ()=>{ renderIncomingRequestsFor(uid); renderCurrentUserUI(); updateButtons(); });
 
   updateButtons();
-  // if current user is recipient, show incoming requests UI
   renderIncomingRequestsFor(uid);
 }
 
-/* ---------- update buttons state (disable if already sent/connected) ---------- */
 function updateButtons(){
   const cur = getCurrentUserId();
   const uid = getQuery('uid') || getQuery('id') || null;
-  // disable Up Together if no profile or same user
   if(!uid){ qs('upBtn').disabled = true; return; }
   if(cur === uid){ qs('upBtn').disabled = true; qs('msgBtn').disabled = true; } else qs('msgBtn').disabled = false;
-
-  // if already connected, change button text
   const conns = getConnections();
   if(cur && uid && (conns[cur]||[]).includes(uid)){
     qs('upBtn').textContent = 'Connected';
     qs('upBtn').disabled = true;
   } else {
     qs('upBtn').textContent = 'Up Together';
-    // if a pending request exists from cur->uid show "Request pending"
     const reqs = getRequests();
     const pending = reqs.find(r=>r.from===cur && r.to===uid && r.status==='pending');
     if(pending){
@@ -303,19 +278,9 @@ function updateButtons(){
   }
 }
 
-/* ---------- auto-prompt when no CURRENT_USER: small friendly ask ---------- */
-function maybePromptSetUser(){
-  if(getCurrentUserId()) return;
-  setTimeout(()=>{
-    if(confirm('Set demo CURRENT_USER to Alice for testing? (OK = Alice)')){
-      setCurrentUserId('alice'); showStatus('CURRENT_USER set to alice'); updateButtons();
-    }
-  }, 600);
-}
-
-/* ---------- run ---------- */
 init();
-maybePromptSetUser();
 </script>
+<script defer src="common.js"></script>
+
 </body>
 </html>
